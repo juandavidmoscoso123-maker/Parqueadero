@@ -9,5 +9,6 @@ namespace Parquing.Models
 
         public DbSet<Vehiculo> Vehiculos { get; set; }
         public DbSet<Configuracion> Configuraciones { get; set; }
+         public DbSet<Parqueadero> Parqueaderos { get; set; }
     }
 }
