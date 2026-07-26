@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews(); // o Razor Pages segun uses
+builder.Services.AddRazorPages(); // o Razor Pages segun uses
 
 var app = builder.Build();
 
@@ -16,9 +16,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+app.MapRazorPages();
 
 app.Run();
