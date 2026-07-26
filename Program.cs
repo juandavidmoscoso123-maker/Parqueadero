@@ -8,7 +8,7 @@ builder.Services.AddRazorPages();
 
 // 2. Registrar el DbContext de la base de datos
 builder.Services.AddDbContext<ParquingDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 // (Recuerda cambiar UseSqlServer por UseNpgsql o UseMySql según el motor que uses en Railway)
 
 var app = builder.Build();
