@@ -1,0 +1,31 @@
+@page
+@model Parquing.Pages.SuscripcionesModel
+@{
+    ViewData["Title"] = "Listado de Vehículos";
+}
+
+<div class="container mt-4">
+    <h2>Vehículos Registrados en el Parqueadero</h2>
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Placa</th>
+                <th>Tipo</th>
+                <th>Hora de Ingreso</th>
+                <th>Valor Cobrado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.ListaVehiculos)
+            {
+                <tr>
+                    <td>@s.Placa</td>
+                    <td>@s.Tipo</td>
+                    <td>@s.HoraIngreso.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>$@s.ValorCobrado.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
