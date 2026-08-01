@@ -28,8 +28,10 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
 
+
 // 5. Mapeo de rutas y archivos estáticos
 app.MapStaticAssets();
 app.MapRazorPages();
+
 
 app.Run();
