@@ -1,15 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using Parquing.Models;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Agregar servicios al contenedor (Razor Pages)
 builder.Services.AddRazorPages();
 
-// 2. Registrar el DbContext de la base de datos
+// 2. Registrar el DbContext de la base de datos (Compatible con Railway y local)
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+}
+else
+{
+    var databaseUri = new Uri(connectionString);
+    var userInfo = databaseUri.UserInfo.Split(':');
+    connectionString = $"Server={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.LocalPath.TrimStart('/')};User Id={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true;";
+}
+
 builder.Services.AddDbContext<ParquingDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-// (Recuerda cambiar UseSqlServer por UseNpgsql o UseMySql según el motor que uses en Railway)
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
@@ -28,10 +41,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
 
-
 // 5. Mapeo de rutas y archivos estáticos
 app.MapStaticAssets();
 app.MapRazorPages();
-
 
 app.Run();
