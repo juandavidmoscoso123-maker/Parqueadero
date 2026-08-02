@@ -40,26 +40,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 
-// Aplica las migraciones de forma segura al arrancar sin bloquear el hilo principal
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var dbContext = services.GetRequiredService<ParquingDbContext>();
-        dbContext.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurrió un error al aplicar las migraciones a la base de datos.");
-    }
-}
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 app.MapRazorPages();
+
+using var scope = app.Services.CreateScope();
+scope.ServiceProvider.GetRequiredService<ParquingDbContext>().Database.EnsureCreated();
 
 app.Run();
