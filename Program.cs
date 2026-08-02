@@ -39,19 +39,27 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+// Aplica las migraciones de forma segura al arrancar sin bloquear el hilo principal
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ParquingDbContext>();
-    context.Database.Migrate(); // Esto crea las tablas automáticamente si no existen
+    try
+    {
+        var dbContext = services.GetRequiredService<ParquingDbContext>();
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al aplicar las migraciones a la base de datos.");
+    }
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
-
-// 5. Mapeo de rutas y archivos estáticos
-app.MapStaticAssets();
 app.MapRazorPages();
 
 app.Run();
