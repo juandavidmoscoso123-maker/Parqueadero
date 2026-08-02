@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Parquing.Models;
 using System;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Agregar servicios al contenedor (Razor Pages)
