@@ -39,6 +39,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ParquingDbContext>();
+    context.Database.Migrate(); // Esto crea las tablas automáticamente si no existen
+}
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
