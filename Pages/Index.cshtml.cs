@@ -94,14 +94,14 @@ namespace Parquing.Pages
 
                 // Diseñamos el mensaje base con el reporte diario
                 string mensajeHtml = $@"
-            <h2>📊 Informe Diario de Parqueadero</h2>
-            <p>Resumen de la jornada de hoy:</p>
-            <ul>
-                <li>🚗 <b>Carros ingresados hoy:</b> {totalcarrosHoy}</li>
-                <li>🏍️ <b>Motos ingresadas hoy:</b> {totalMotosHoy}</li>
-                <li>💰 <b>Dinero total en caja hoy:</b> ${dineroHoy:N2}</li>
-            </ul>
-        ";
+                  <h2>📊 Informe Diario de Parqueadero</h2>
+                  <p>Resumen de la jornada de hoy:</p>
+                 <ul>
+                    <li>🚗 <b>Carros ingresados hoy:</b> {totalcarrosHoy}</li>
+                    <li>🏍️ <b>Motos ingresadas hoy:</b> {totalMotosHoy}</li>
+                    <li>💰 <b>Dinero total en caja hoy:</b> ${dineroHoy:N2}</li>
+                </ul> ";
+
 
                 bool seCumplieron29Dias = false;
 
