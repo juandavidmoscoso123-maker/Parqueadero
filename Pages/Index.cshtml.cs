@@ -147,6 +147,8 @@ namespace Parquing.Pages
                 {
                     smtpClient.Credentials = new NetworkCredential("juandavidmoscoso123@gmail.com", "xbod tseu tgjn qexs");
                     smtpClient.EnableSsl = true;
+                    smtpClient.UseDefaultCredentials = false;
+                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
 
                     await smtpClient.SendMailAsync(mailMessage);
                 }
