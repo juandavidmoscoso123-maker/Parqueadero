@@ -26,9 +26,10 @@ namespace Parquing.Pages
         public async Task OnGetAsync()
         {
             DateTime hoy = DateTime.Today;
+            DateTime mañana = hoy.AddDays(1);
 
             ListaVehiculos = await _context.Vehiculos
-            .Where(v => v.HoraIngreso.Date == hoy)
+            .Where(v => v.HoraIngreso >= hoy && v.HoraIngreso < mañana)
             .OrderByDescending(v => v.HoraIngreso)
             .ToListAsync();
 
@@ -43,7 +44,7 @@ namespace Parquing.Pages
             {
                 Tipo = "Moto",
                 ValorCobrado = 5000,
-                HoraIngreso = System.DateTime.Now
+                HoraIngreso = DateTime.Now
             };
 
             _context.Vehiculos.Add(registro);
@@ -58,7 +59,7 @@ namespace Parquing.Pages
             {
                 Tipo = "Carro",
                 ValorCobrado = 10000,
-                HoraIngreso = System.DateTime.Now
+                HoraIngreso = DateTime.Now
             };
 
             _context.Vehiculos.Add(registro);
@@ -90,9 +91,7 @@ namespace Parquing.Pages
                    .SumAsync(v => v.ValorCobrado);
 
 
-                // 1. REPORTE DIARIO (Vehículos registrados hoy - NO borra nada, al otro día queda limpio solo para la vista de hoy)
-
-                // Diseñamos el mensaje base con el reporte diario
+                // 1. REPORTE DIARIO (Vehículos registrados hoy)
                 string mensajeHtml = $@"
                   <h2>📊 Informe Diario de Parqueadero</h2>
                   <p>Resumen de la jornada de hoy:</p>
@@ -109,18 +108,14 @@ namespace Parquing.Pages
                 var config = await _context.Configuraciones.FirstOrDefaultAsync(c => c.Clave == "UltimoEnvioMensual");
                 DateTime? ultimaFechaEnvio = config?.ValorFecha;
 
-                // 2. REPORTE MENSUAL MEJORADO (Solo aparece y se procesa cuando se cumplan los 29 días o más)
+                // 2. REPORTE MENSUAL MEJORADO (Calcula el acumulado total de la BD al cumplirse los 29 días)
                 if (ultimaFechaEnvio == null || (hoy - ultimaFechaEnvio.Value).TotalDays >= 29)
                 {
-                    int totalCarrosMes = await _context.Vehiculos
-                      .CountAsync(v => v.Tipo == "Carro" && v.HoraIngreso >= hoy && v.HoraIngreso < mañana);
-                    int totalMotosMes = await _context.Vehiculos
-                      .CountAsync(v => v.Tipo == "Moto" && v.HoraIngreso >= hoy && v.HoraIngreso < mañana);
-                    decimal dineroMes = await _context.Vehiculos
-                      .Where(v => v.HoraIngreso >= hoy && v.HoraIngreso < mañana)
-                      .SumAsync(v => v.ValorCobrado);
+                    // CORREGIDO: Aquí se cuenta todo lo que hay almacenado en la BD sin limitar a 'hoy'
+                    int totalCarrosMes = await _context.Vehiculos.CountAsync(v => v.Tipo == "Carro");
+                    int totalMotosMes = await _context.Vehiculos.CountAsync(v => v.Tipo == "Moto");
+                    decimal dineroMes = await _context.Vehiculos.SumAsync(v => v.ValorCobrado);
 
-                    // Mensaje mensual mejorado y detallado del cierre de ciclo
                     mensajeHtml += $@"
                 <hr>
                 <div style='background-color: #f9f9f9; padding: 15px; border-left: 4px solid #007bff;'>
@@ -129,11 +124,10 @@ namespace Parquing.Pages
                     <ul>
                         <li>🚗 <b>Total de Carros Atendidos:</b> {totalCarrosMes}</li>
                         <li>🏍️ <b>Total de Motos Atendidas:</b> {totalMotosMes}</li>
-                        <li>💵 <b>Promedio / Ingreso Bruto del Ciclo:</b> ${dineroMes:N2}</li>
+                        <li>💵 <b>Ingreso Bruto del Ciclo:</b> ${dineroMes:N2}</li>
                     </ul>
                     <p><em>Ciclo completado exitosamente. Los contadores se reiniciarán para el próximo periodo.</em></p>
-                </div>
-            ";
+                </div>";
 
                     seCumplieron29Dias = true;
                 }
@@ -157,8 +151,7 @@ namespace Parquing.Pages
                     await smtpClient.SendMailAsync(mailMessage);
                 }
 
-                // 4. REINICIO DE DATOS: Solo se borra el historial acumulado cuando se cumplen los 29 días.
-                // Los días normales el reporte diario se manda solo y los datos siguen intactos en la BD para el acumulado.
+                // 4. REINICIO DE DATOS: Solo borra cuando se cumplen los 29 días
                 if (seCumplieron29Dias)
                 {
                     var todosLosVehiculos = await _context.Vehiculos.ToListAsync();
@@ -183,6 +176,5 @@ namespace Parquing.Pages
 
             return RedirectToPage();
         }
-
     }
 }
