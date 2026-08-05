@@ -13,10 +13,10 @@ namespace Parquing.Pages
     {
         private readonly ParquingDbContext _context;
 
-    public IndexModel(ParquingDbContext context)
-    {
-     _context = context;
-    }
+        public IndexModel(ParquingDbContext context)
+        {
+            _context = context;
+        }
 
         public IList<Vehiculo> ListaVehiculos { get; set; } = new List<Vehiculo>();
         public decimal TotalCaja { get; set; }
@@ -24,17 +24,17 @@ namespace Parquing.Pages
         public int TotalMotos { get; set; }
 
         public async Task OnGetAsync()
-       {
-         DateTime hoy = DateTime.Today;
+        {
+            DateTime hoy = DateTime.Today;
 
-         ListaVehiculos = await _context.Vehiculos
-         .Where(v => v.HoraIngreso.Date == hoy)
-         .OrderByDescending(v => v.HoraIngreso)
-         .ToListAsync();
- 
-         TotalCarros = ListaVehiculos.Count(v => v.Tipo == "Carro");
-         TotalMotos = ListaVehiculos.Count(v => v.Tipo == "Moto");
-         TotalCaja = ListaVehiculos.Sum(v => v.ValorCobrado);
+            ListaVehiculos = await _context.Vehiculos
+            .Where(v => v.HoraIngreso.Date == hoy)
+            .OrderByDescending(v => v.HoraIngreso)
+            .ToListAsync();
+
+            TotalCarros = ListaVehiculos.Count(v => v.Tipo == "Carro");
+            TotalMotos = ListaVehiculos.Count(v => v.Tipo == "Moto");
+            TotalCaja = ListaVehiculos.Sum(v => v.ValorCobrado);
         }
 
         public IActionResult OnPostRegistrarMoto()
@@ -67,50 +67,61 @@ namespace Parquing.Pages
             return RedirectToPage();
         }
 
-   // Este método se activa automáticamente al presionar "Guardar y Enviar" en el modal
- public async Task<IActionResult> OnPostEnviarReporteAsync(string correoDestino)
-{
-    if (string.IsNullOrEmpty(correoDestino))
-    {
-        return RedirectToPage();
-    }
+        // Este método se activa automáticamente al presionar "Guardar y Enviar" en el modal
+        public async Task<IActionResult> OnPostEnviarReporteAsync(string correoDestino)
+        {
+            if (string.IsNullOrEmpty(correoDestino))
+            {
+                return RedirectToPage();
+            }
 
-    try
-    {
-        // Fecha actual
-        DateTime hoy = DateTime.Today;
+            try
+            {
+                // Fecha actual
+                DateTime hoy = DateTime.Today;
+                DateTime mañana = hoy.AddDays(1);
 
-        // 1. REPORTE DIARIO (Vehículos registrados hoy - NO borra nada, al otro día queda limpio solo para la vista de hoy)
-        int totalCarrosHoy = await _context.Vehiculos.CountAsync(v => v.Tipo == "Carro" && v. HoraIngreso .Date == hoy);
-        int totalMotosHoy = await _context.Vehiculos.CountAsync(v => v.Tipo == "Moto" && v. HoraIngreso .Date == hoy);
-        decimal dineroHoy = await _context.Vehiculos.Where(v => v. HoraIngreso .Date == hoy).SumAsync(v => v.ValorCobrado);
+                int totalcarrosHoy = await _context.Vehiculos
+                   .CountAsync(v => v.Tipo == "Carro" && v.HoraIngreso >= hoy && v.HoraIngreso < mañana);
+                int totalMotosHoy = await _context.Vehiculos
+                   .CountAsync(v => v.Tipo == "Moto" && v.HoraIngreso >= hoy && v.HoraIngreso < mañana);
+                decimal dineroHoy = await _context.Vehiculos
+                   .Where(v => v.HoraIngreso >= hoy && v.HoraIngreso < mañana)
+                   .SumAsync(v => v.ValorCobrado);
 
-        // Diseñamos el mensaje base con el reporte diario
-        string mensajeHtml = $@"
+
+                // 1. REPORTE DIARIO (Vehículos registrados hoy - NO borra nada, al otro día queda limpio solo para la vista de hoy)
+
+                // Diseñamos el mensaje base con el reporte diario
+                string mensajeHtml = $@"
             <h2>📊 Informe Diario de Parqueadero</h2>
             <p>Resumen de la jornada de hoy:</p>
             <ul>
-                <li>🚗 <b>Carros ingresados hoy:</b> {totalCarrosHoy}</li>
+                <li>🚗 <b>Carros ingresados hoy:</b> {totalcarrosHoy}</li>
                 <li>🏍️ <b>Motos ingresadas hoy:</b> {totalMotosHoy}</li>
                 <li>💰 <b>Dinero total en caja hoy:</b> ${dineroHoy:N2}</li>
             </ul>
         ";
 
-        bool seCumplieron29Dias = false;
+                bool seCumplieron29Dias = false;
 
-        // Verificamos en la base de datos la última vez que se hizo el cierre del ciclo mensual
-        var config = await _context.Configuraciones.FirstOrDefaultAsync(c => c.Clave == "UltimoEnvioMensual");
-        DateTime? ultimaFechaEnvio = config?.ValorFecha;
+                // Verificamos en la base de datos la última vez que se hizo el cierre del ciclo mensual
+                var config = await _context.Configuraciones.FirstOrDefaultAsync(c => c.Clave == "UltimoEnvioMensual");
+                DateTime? ultimaFechaEnvio = config?.ValorFecha;
 
-        // 2. REPORTE MENSUAL MEJORADO (Solo aparece y se procesa cuando se cumplan los 29 días o más)
-        if (ultimaFechaEnvio == null || (hoy - ultimaFechaEnvio.Value).TotalDays >= 29)
-        {
-            int totalCarrosMes = await _context.Vehiculos.CountAsync(v => v.Tipo == "Carro");
-            int totalMotosMes = await _context.Vehiculos.CountAsync(v => v.Tipo == "Moto");
-            decimal dineroMes = await _context.Vehiculos.SumAsync(v => v.ValorCobrado);
+                // 2. REPORTE MENSUAL MEJORADO (Solo aparece y se procesa cuando se cumplan los 29 días o más)
+                if (ultimaFechaEnvio == null || (hoy - ultimaFechaEnvio.Value).TotalDays >= 29)
+                {
+                    int totalCarrosMes = await _context.Vehiculos
+                      .CountAsync(v => v.Tipo == "Carro" && v.HoraIngreso >= hoy && v.HoraIngreso < mañana);
+                    int totalMotosMes = await _context.Vehiculos
+                      .CountAsync(v => v.Tipo == "Moto" && v.HoraIngreso >= hoy && v.HoraIngreso < mañana);
+                    decimal dineroMes = await _context.Vehiculos
+                      .Where(v => v.HoraIngreso >= hoy && v.HoraIngreso < mañana)
+                      .SumAsync(v => v.ValorCobrado);
 
-            // Mensaje mensual mejorado y detallado del cierre de ciclo
-            mensajeHtml += $@"
+                    // Mensaje mensual mejorado y detallado del cierre de ciclo
+                    mensajeHtml += $@"
                 <hr>
                 <div style='background-color: #f9f9f9; padding: 15px; border-left: 4px solid #007bff;'>
                     <h2>📈 Informe Consolidado de Cierre de Ciclo (29 Días)</h2>
@@ -124,54 +135,54 @@ namespace Parquing.Pages
                 </div>
             ";
 
-            seCumplieron29Dias = true;
-        }
+                    seCumplieron29Dias = true;
+                }
 
-        // 3. CONFIGURACIÓN Y ENVÍO DEL CORREO
-        var mailMessage = new MailMessage
-        {
-            From = new MailAddress("juandavidmoscoso123@gmail.com"),
-            Subject = seCumplieron29Dias ? "Reporte de Parqueadero - Diario y Cierre Mensual" : "Reporte de Parqueadero - Diario",
-            Body = mensajeHtml,
-            IsBodyHtml = true
-        };
+                // 3. CONFIGURACIÓN Y ENVÍO DEL CORREO
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("juandavidmoscoso123@gmail.com"),
+                    Subject = seCumplieron29Dias ? "Reporte de Parqueadero - Diario y Cierre Mensual" : "Reporte de Parqueadero - Diario",
+                    Body = mensajeHtml,
+                    IsBodyHtml = true
+                };
 
-        mailMessage.To.Add(correoDestino);
+                mailMessage.To.Add(correoDestino);
 
-        using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
-        {
-            smtpClient.Credentials = new NetworkCredential("juandavidmoscoso123@gmail.com", "xbod tseu tgjn qexs");
-            smtpClient.EnableSsl = true;
+                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtpClient.Credentials = new NetworkCredential("juandavidmoscoso123@gmail.com", "xbod tseu tgjn qexs");
+                    smtpClient.EnableSsl = true;
 
-            await smtpClient.SendMailAsync(mailMessage);
-        }
+                    await smtpClient.SendMailAsync(mailMessage);
+                }
 
-        // 4. REINICIO DE DATOS: Solo se borra el historial acumulado cuando se cumplen los 29 días.
-        // Los días normales el reporte diario se manda solo y los datos siguen intactos en la BD para el acumulado.
-        if (seCumplieron29Dias)
-        {
-            var todosLosVehiculos = await _context.Vehiculos.ToListAsync();
-            _context.Vehiculos.RemoveRange(todosLosVehiculos);
+                // 4. REINICIO DE DATOS: Solo se borra el historial acumulado cuando se cumplen los 29 días.
+                // Los días normales el reporte diario se manda solo y los datos siguen intactos en la BD para el acumulado.
+                if (seCumplieron29Dias)
+                {
+                    var todosLosVehiculos = await _context.Vehiculos.ToListAsync();
+                    _context.Vehiculos.RemoveRange(todosLosVehiculos);
 
-            if (config != null)
-            {
-                config.ValorFecha = hoy;
+                    if (config != null)
+                    {
+                        config.ValorFecha = hoy;
+                    }
+                    else
+                    {
+                        _context.Configuraciones.Add(new Configuracion { Clave = "UltimoEnvioMensual", ValorFecha = hoy });
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _context.Configuraciones.Add(new Configuracion { Clave = "UltimoEnvioMensual", ValorFecha = hoy });
+                Console.WriteLine("Error: " + ex.Message);
             }
 
-            await _context.SaveChangesAsync();
+            return RedirectToPage();
         }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Error: " + ex.Message);
-    }
 
-    return RedirectToPage();
+    }
 }
-    
-} 
-} 
