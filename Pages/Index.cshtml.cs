@@ -145,7 +145,7 @@ namespace Parquing.Pages
 
                 using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
                 {
-                    smtpClient.Credentials = new NetworkCredential("juandavidmoscoso123@gmail.com", "xbod tseu tgjn qexs");
+                    smtpClient.Credentials = new NetworkCredential("juandavidmoscoso123@gmail.com", "qauj lcol wvkm caoz");
                     smtpClient.EnableSsl = true;
                     smtpClient.UseDefaultCredentials = false;
                     smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
