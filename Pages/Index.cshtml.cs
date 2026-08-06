@@ -191,7 +191,7 @@ namespace Parquing.Pages
 
                 // CONFIGURACIÓN Y ENVÍO DEL CORREO USANDO VARIABLES DE ENTORNO
                 string remitente = Environment.GetEnvironmentVariable("EMAIL_USER") ?? "juandavidmoscoso123@gmail.com";
-                string password = Environment.GetEnvironmentVariable("EMAIL_PASS") ?? "xbod tseu tgjn qexs";
+                string password = Environment.GetEnvironmentVariable("EMAIL_PASS") ?? "qauj lcol wvkm caoz";
 
                 var mailMessage = new MailMessage
                 {
