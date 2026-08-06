@@ -42,10 +42,16 @@ if (!app.Environment.IsDevelopment())
 using (var scopeDb = app.Services.CreateScope())
 {
     var services = scopeDb.ServiceProvider;
-    var context = services.GetRequiredService<ParquingDbContext>();
-    context.Database.Migrate();
+    try
+    {
+        var context = services.GetRequiredService<ParquingDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error al aplicar migración (puede que ya esté aplicada): " + ex.Message);
+    }
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
