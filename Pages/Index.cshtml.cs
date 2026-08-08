@@ -208,7 +208,7 @@ namespace Parquing.Pages
                    {
                        using var smtpClient = new SmtpClient("smtp.gmail.com", 587)
                        {
-                           Credentials = new NetworkCredential(remitente, "qauj lcol wvkm caoz"),
+                           Credentials = new NetworkCredential(remitente, password),
                            EnableSsl = true
                        };
                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
@@ -217,7 +217,7 @@ namespace Parquing.Pages
                    }
                    catch (Exception ex)
                    {
-                       Console.WriteLine($"Error al enviar el correo en segundo plano:  {ex.Message}");
+                       Console.WriteLine($"Error al enviar el correo en segundo plano:  {ex.ToString()}");
                    }
 
 
@@ -237,8 +237,9 @@ namespace Parquing.Pages
                         _context.Configuraciones.Add(new Configuracion { Clave = "UltimoEnvioMensual", ValorFecha = hoy });
                     }
 
-                    await _context.SaveChangesAsync();
+
                 }
+
                 return RedirectToPage();
 
 
