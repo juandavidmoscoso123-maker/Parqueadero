@@ -202,15 +202,27 @@ namespace Parquing.Pages
                 };
 
                 mailMessage.To.Add(correoDestino);
+                _ = Task.Run(async () =>
+               {
+                   try
+                   {
+                       using var smtpClient = new SmtpClient("smtp.gmail.com", 587)
+                       {
+                           Credentials = new NetworkCredential(remitente, "qauj lcol wvkm caoz"),
+                           EnableSsl = true
+                       };
+                       using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                       await smtpClient.SendMailAsync(mailMessage);
 
-                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
-                {
-                    smtpClient.Credentials = new NetworkCredential(remitente, password);
-                    smtpClient.EnableSsl = true;
+                   }
+                   catch (Exception ex)
+                   {
+                       Console.WriteLine($"Error al enviar el correo en segundo plano:  {ex.Message}");
+                   }
 
-                    await smtpClient.SendMailAsync(mailMessage);
-                }
 
+
+               });
                 if (seCumplieron29Dias)
                 {
                     var todosLosVehiculos = await _context.Vehiculos.ToListAsync();
@@ -227,6 +239,13 @@ namespace Parquing.Pages
 
                     await _context.SaveChangesAsync();
                 }
+                return RedirectToPage();
+
+
+
+
+
+
             }
             catch (Exception ex)
             {
