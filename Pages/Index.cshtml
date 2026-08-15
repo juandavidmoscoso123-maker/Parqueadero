@@ -36,11 +36,19 @@
             <form method="post" class="d-flex justify-content-center gap-4">
                 <button type="submit" asp-page-handler="RegistrarMoto"
                         class="btn btn-warning btn-lg px-5 py-3 fw-bold text-dark shadow">
-                    🛵 Entró una Moto ($5.000)
+
+                    🛵 Entró una Moto
+                    ($ @Model.PrecioMotoActual.ToString("N0"))
+
                 </button>
+
+
                 <button type="submit" asp-page-handler="RegistrarCarro"
                         class="btn btn-success btn-lg px-5 py-3 fw-bold shadow">
-                    🚗 Entró un Carro ($10.000)
+
+                    🚗 Entró un Carro
+                    ($ @Model.PrecioCarroActual.ToString("N0"))
+
                 </button>
             </form>
         </div>
@@ -143,55 +151,64 @@
 
         <div class="modal-content">
 
-            <!-- Encabezado -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalPreciosLabel">
-                    Configuracion
-                </h5>
+            <form method="post" asp-page-handler="ActualizarTarifas">
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                </button>
-            </div>
+                <div class="modal-header">
 
+                    <h5 class="modal-title" id="modalPreciosLabel">
+                        ⚙️ Configurar precios
+                    </h5>
 
-            <!-- Contenido -->
-            <div class="modal-body">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    </button>
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        🛵 Precio de la Moto
-                    </label>
-
-                    <input type="number" class="form-control" name="precioMoto" value="5000">
                 </div>
 
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        🚗 Precio del Carro
-                    </label>
+                <div class="modal-body">
 
-                    <input type="number" class="form-control" name="precioCarro" value="10000">
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            🛵 Precio de la Moto
+                        </label>
+
+                        <input type="number" class="form-control" name="precioMoto" value="@Model.PrecioMotoActual"
+                               min="0" step="100">
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            🚗 Precio del Carro
+                        </label>
+
+                        <input type="number" class="form-control" name="precioCarro" value="@Model.PrecioCarroActual"
+                               min="0" step="100">
+
+                    </div>
+
                 </div>
 
-            </div>
 
+                <div class="modal-footer">
 
-            <!-- Botones -->
-            <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
 
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cancelar
-                </button>
+                    <button type="submit" class="btn btn-success">
+                        💾 Guardar precios
+                    </button>
 
-                <button type="button" class="btn btn-success">
-                    💾 Guardar
-                </button>
+                </div>
 
-            </div>
+            </form>
 
         </div>
+
     </div>
+
 </div>
-
-
