@@ -1,64 +1,139 @@
+
 using Microsoft.EntityFrameworkCore;
 using Parquing.Models;
 using System;
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch(
+    "Npgsql.EnableLegacyTimestampBehavior",
+    true
+);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Agregar servicios al contenedor (Razor Pages)
+
+// ============================================================
+// 1. SERVICIOS
+// ============================================================
+
 builder.Services.AddRazorPages();
 
-// 2. Registrar el DbContext de la base de datos (Compatible con Railway y local)
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+// HttpClient para enviar correos mediante Resend
+builder.Services.AddHttpClient();
+
+
+// ============================================================
+// 2. CONEXIÓN A POSTGRESQL
+// ============================================================
+
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_URL");
 
 if (string.IsNullOrEmpty(connectionString))
 {
-    connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    connectionString =
+        builder.Configuration.GetConnectionString(
+            "DefaultConnection"
+        );
 }
 else
 {
     var databaseUri = new Uri(connectionString);
-    var userInfo = databaseUri.UserInfo.Split(':');
-    connectionString = $"Server={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.LocalPath.TrimStart('/')};User Id={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true;";
+
+    var userInfo =
+        databaseUri.UserInfo.Split(':');
+
+    connectionString =
+        $"Server={databaseUri.Host};" +
+        $"Port={databaseUri.Port};" +
+        $"Database={databaseUri.LocalPath.TrimStart('/')};" +
+        $"User Id={userInfo[0]};" +
+        $"Password={userInfo[1]};" +
+        $"SSL Mode=Require;" +
+        $"Trust Server Certificate=true;";
 }
 
-builder.Services.AddDbContext<ParquingDbContext>(options =>
-    options.UseNpgsql(connectionString));
+
+// Registrar DbContext
+builder.Services.AddDbContext<ParquingDbContext>(
+    options =>
+        options.UseNpgsql(connectionString)
+);
+
+
+// ============================================================
+// 3. CONSTRUIR APLICACIÓN
+// ============================================================
 
 var app = builder.Build();
 
-// 3. Configurar el puerto dinámico de Railway
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://0.0.0.0:{port}");
 
-// 4. Configurar el pipeline de la aplicación (Middlewares)
+// ============================================================
+// 4. PUERTO DE RAILWAY
+// ============================================================
+
+var port =
+    Environment.GetEnvironmentVariable("PORT")
+    ?? "8080";
+
+app.Urls.Add(
+    $"http://0.0.0.0:{port}"
+);
+
+
+// ============================================================
+// 5. MANEJO DE ERRORES
+// ============================================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
+
+// ============================================================
+// 6. MIGRACIONES DE BASE DE DATOS
+// ============================================================
+
 using (var scopeDb = app.Services.CreateScope())
 {
     var services = scopeDb.ServiceProvider;
+
     try
     {
-        var context = services.GetRequiredService<ParquingDbContext>();
+        var context =
+            services.GetRequiredService<ParquingDbContext>();
+
         context.Database.Migrate();
     }
     catch (Exception ex)
     {
-        Console.WriteLine("Error al aplicar migración (puede que ya esté aplicada): " + ex.Message);
+        Console.WriteLine(
+            "Error al aplicar migración: " +
+            ex.Message
+        );
     }
 }
+
+
+// ============================================================
+// 7. MIDDLEWARES
+// ============================================================
+
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseAuthorization();
+
 app.MapRazorPages();
 
-using var scope = app.Services.CreateScope();
-scope.ServiceProvider.GetRequiredService<ParquingDbContext>().Database.EnsureCreated();
+
+// ============================================================
+// 8. INICIAR APLICACIÓN
+// ============================================================
 
 app.Run();
+
