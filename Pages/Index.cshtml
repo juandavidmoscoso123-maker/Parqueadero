@@ -117,67 +117,71 @@
 
 
 <!-- Botón para abrir la ventana -->
-<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalPrecios">
-    ⚙️ Configurar precios
-</button>
+<div class="container mt-4">
+
+    <h2 class="mb-4">Control Rápido de Ingresos</h2>
+
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalPrecios">
+        ⚙️
+    </button>
 
 
-<!-- Ventana para configurar precios -->
-<div class="modal fade" id="modalPrecios" tabindex="-1" aria-labelledby="modalPreciosLabel" aria-hidden="true">
+    <!-- Ventana para configurar precios -->
+    <div class="modal fade" id="modalPrecios" tabindex="-1" aria-labelledby="modalPreciosLabel" aria-hidden="true">
 
-    <div class="modal-dialog">
+        <div class="modal-dialog">
 
-        <div class="modal-content">
+            <div class="modal-content">
 
-            <!-- Encabezado -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalPreciosLabel">
-                    ⚙️ Configurar precios
-                </h5>
+                <!-- Encabezado -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPreciosLabel">
+                        ⚙️ Configuracion
+                    </h5>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar">
-                </button>
-            </div>
-
-
-            <!-- Contenido -->
-            <div class="modal-body">
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        🛵 Precio de la Moto
-                    </label>
-
-                    <input type="number" class="form-control" name="precioMoto" value="5000">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    </button>
                 </div>
 
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        🚗 Precio del Carro
-                    </label>
+                <!-- Contenido -->
+                <div class="modal-body">
 
-                    <input type="number" class="form-control" name="precioCarro" value="10000">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            🛵 Precio de la Moto
+                        </label>
+
+                        <input type="number" class="form-control" name="precioMoto" value="5000">
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            🚗 Precio del Carro
+                        </label>
+
+                        <input type="number" class="form-control" name="precioCarro" value="10000">
+                    </div>
+
+                </div>
+
+
+                <!-- Botones -->
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-success">
+                        💾 Guardar
+                    </button>
+
                 </div>
 
             </div>
-
-
-            <!-- Botones -->
-            <div class="modal-footer">
-
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cancelar
-                </button>
-
-                <button type="button" class="btn btn-success">
-                    💾 Guardar
-                </button>
-
-            </div>
-
         </div>
     </div>
-</div>
 
 
